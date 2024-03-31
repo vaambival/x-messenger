@@ -1,0 +1,14 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: x-messenger
+  datasource:
+    platform: postgres
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5431/x-messenger
+    username: otus_x
+    password: otus_x
+  liquibase:
+    changeLog: "classpath:db/changelog/changelog.xml"
+    default-schema: "public"

@@ -1,0 +1,46 @@
+databaseChangeLog:
+  - changeSet:
+      id: 01-create-schema
+      author: kurov
+      changes:
+        - sql:
+            dbms: 'postgresql'
+            sql: CREATE SCHEMA IF NOT EXISTS x_messenger;
+
+  - changeSet:
+      id: 02-create-table-message
+      author: kurov
+      changes:
+        - createTable:
+            tableName: messages
+            schemaName: x_messenger
+            remarks: Таблица сообщений мессенджера
+            columns:
+              - column:
+                  name: dialogue_id
+                  type: varchar(72)
+              - column:
+                  name: author_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_date
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: text
+                  type: clob
+  - changeSet:
+      id: 03-add-primary-key
+      author: kurov
+      changes:
+        - addPrimaryKey:
+            clustered: true
+            columnNames: dialogue_id, created_date, author_id
+            constraintName: dialogue_pk
+            forIndexName: dialogue_index_pk
+            schemaName: x_messenger
+            tableName: messages
+            validate: true
