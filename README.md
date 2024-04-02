@@ -41,9 +41,20 @@ CREATE DATABASE x_messenger
 ./mvnw spring-boot:run
 ```
 
-Приложение запустится на порту 8080 (стандартный порт). Если он у вас занят, то
+Приложение запустится на порту 8081. Если он у вас занят, то
 можно указать свободный порт в файле [application.yaml](src/main/resources/application.yaml):
 ```yaml
 server:
-  port: 8080
+  port: 8081
+```
+
+# API
+API можно посмотреть в [свагере](http://localhost:8081/swagger-ui/index.html#/) или воспользоваться [postman-коллекцией](postman).
+
+# Запуск в контейнерах
+
+Для запуска с использованием docker необходимо запустить сервис пользователей в контейнерах и воспользоваться
+[docker-compose](docker-compose.yaml) текущего проекта
+```shell
+docker compose up
 ```

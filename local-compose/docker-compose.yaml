@@ -14,8 +14,6 @@ services:
       - ALLOW_EMPTY_PASSWORD=yes
   postgresql-follower:
     image: docker.io/bitnami/postgresql:16
-    deploy:
-      replicas: 2
     depends_on:
       - postgresql-leader
     environment:
@@ -31,6 +29,8 @@ services:
     container_name: messenger-db
     volumes:
       - 'postgresql_messenger:/var/lib/postgresql/data'
+    ports:
+      - 5430:5432
     environment:
       - POSTGRES_USER=otus_x
       - POSTGRES_PASSWORD=otus_x
@@ -45,16 +45,6 @@ services:
     environment:
       SPRING_DATASOURCE_WRITE_URL: jdbc:postgresql://leader:5432/otus_x
       SPRING_DATASOURCE_READ_URL: jdbc:postgresql://postgresql-follower:5432/otus_x
-  message-service:
-    image: kurov1993/x-messenger:0.1
-    container_name: x-messenger
-    ports:
-      - 8081:8081
-    depends_on:
-      - user-service
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://messenger-db:5432/x_messenger
-      MESSENGER_AUTH_BASIC_URL: http://user-service:8080
 volumes:
   postgresql_messenger:
     driver: local
