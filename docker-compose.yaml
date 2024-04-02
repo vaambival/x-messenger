@@ -1,0 +1,15 @@
+services:
+  database:
+    image: postgres:16.2
+    container_name: messenger-db
+    ports:
+      - 5430:5432
+    volumes:
+      - 'postgresql_messenger:/var/lib/postgresql/data'
+    environment:
+      - POSTGRES_USER=otus_x
+      - POSTGRES_PASSWORD=otus_x
+      - POSTGRES_DB=x_messenger
+volumes:
+  postgresql_messenger:
+    driver: local

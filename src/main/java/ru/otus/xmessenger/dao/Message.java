@@ -11,7 +11,6 @@ import java.util.UUID;
 @Setter
 @Accessors(chain = true)
 public class Message {
-    private String id;
     private UUID authorId;
     private LocalDateTime created;
     private String text;

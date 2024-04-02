@@ -6,9 +6,13 @@ spring:
   datasource:
     platform: postgres
     driverClassName: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5431/x-messenger
+    url: jdbc:postgresql://localhost:5430/x_messenger
     username: otus_x
     password: otus_x
   liquibase:
-    changeLog: "classpath:db/changelog/changelog.xml"
+    changeLog: "classpath:changelog/changelog.xml"
     default-schema: "public"
+messenger:
+  auth:
+    basic-url: http://localhost:8080
+    path: /user

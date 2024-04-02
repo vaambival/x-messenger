@@ -40,7 +40,6 @@ databaseChangeLog:
             clustered: true
             columnNames: dialogue_id, created_date, author_id
             constraintName: dialogue_pk
-            forIndexName: dialogue_index_pk
             schemaName: x_messenger
             tableName: messages
             validate: true

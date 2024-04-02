@@ -20,10 +20,10 @@ import java.util.UUID;
 public class MessageDao {
 
     private static final String FIND_DIALOGUE = "SELECT author_id, created_date, text FROM x_messenger.messages" +
-            " WHERE id=? ORDER BY created_date desc LIMIT 10";
+            " WHERE dialogue_id=? ORDER BY created_date desc LIMIT 10";
     private static final String FIND_DIALOGUE_CONTINUE = "SELECT author_id, created_date, text FROM " +
-            "x_messenger.messages WHERE id=? AND created_date < ? ORDER BY created_date LIMIT ?";
-    private static final String INSERT_MESSAGE = "INSERT INTO x_messenger.messages (id, author_id, created_date, " +
+            "x_messenger.messages WHERE dialogue_id=? AND created_date < ? ORDER BY created_date desc LIMIT ?";
+    private static final String INSERT_MESSAGE = "INSERT INTO x_messenger.messages (dialogue_id, author_id, created_date, " +
             "text) VALUES (?, ?, ?, ?)";
 
     private final JdbcTemplate jdbcTemplate;
@@ -51,7 +51,6 @@ public class MessageDao {
             throw new NotSaveException();
         }
         return new Message()
-                .setId(id)
                 .setAuthorId(owner)
                 .setCreated(createdDate)
                 .setText(text);
@@ -63,8 +62,7 @@ public class MessageDao {
 
     private Message messageFromRs(ResultSet rs) throws SQLException {
         return new Message()
-                .setId(rs.getString("dialogue_id"))
-                .setAuthorId(rs.getObject("uuid", UUID.class))
+                .setAuthorId(rs.getObject("author_id", UUID.class))
                 .setCreated(rs.getTimestamp("created_date").toLocalDateTime())
                 .setText(rs.getString("text"));
     }
