@@ -16,7 +16,6 @@ public class UserSecurityServiceImpl implements UserSecurityService {
         if (Objects.isNull(auth)) {
             throw new IsNotAuthenticated("Token is invalid");
         }
-        var token = (String) auth.getPrincipal();
-        return UUID.fromString(token);
+        return (UUID) auth.getPrincipal();
     }
 }
