@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 01-create-distributed_table
+      author: kurov
+      changes:
+        - sql:
+            dbms: 'postgresql'
+            sql: SELECT create_distributed_table('x_messenger.messages', 'dialogue_id');

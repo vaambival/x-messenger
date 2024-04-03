@@ -1,0 +1,96 @@
+services:
+  postgresql-leader:
+    image: docker.io/bitnami/postgresql:16
+    container_name: leader
+    volumes:
+      - 'otus_x_user_db:/bitnami/postgresql'
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=master
+      - POSTGRESQL_REPLICATION_USER=repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_password
+      - POSTGRESQL_USERNAME=otus_x
+      - POSTGRESQL_PASSWORD=otus_x
+      - POSTGRESQL_DATABASE=otus_x
+      - ALLOW_EMPTY_PASSWORD=yes
+  postgresql-follower:
+    image: docker.io/bitnami/postgresql:16
+    deploy:
+      replicas: 2
+    depends_on:
+      - postgresql-leader
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=slave
+      - POSTGRESQL_REPLICATION_USER=repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_password
+      - POSTGRESQL_MASTER_HOST=postgresql-leader
+      - POSTGRESQL_PASSWORD=my_password
+      - POSTGRESQL_MASTER_PORT_NUMBER=5432
+      - ALLOW_EMPTY_PASSWORD=yes
+  master:
+    container_name: sharding_master
+    image: "citusdata/citus:12.1.2"
+    ports: ["${COORDINATOR_EXTERNAL_PORT:-5432}:5432"]
+    labels: ["com.citusdata.role=Master"]
+    environment: &AUTH
+      POSTGRES_USER: otus_x
+      POSTGRES_PASSWORD: otus_x
+      POSTGRES_DB: x_messenger
+      PGUSER: otus_x
+      PGPASSWORD: otus_x
+      POSTGRES_HOST_AUTH_METHOD: "${POSTGRES_HOST_AUTH_METHOD:-trust}"
+  worker:
+    image: "citusdata/citus:12.1.2"
+    labels: ["com.citusdata.role=Worker"]
+    depends_on: [manager]
+    environment: *AUTH
+    command: "/wait-for-manager.sh"
+    deploy:
+      replicas: 3
+    volumes:
+      - healthcheck-volume:/healthcheck
+  manager:
+    container_name: sharding_manager
+    image: "citusdata/membership-manager:0.3.0"
+    volumes:
+      - "${DOCKER_SOCK:-/var/run/docker.sock}:/var/run/docker.sock"
+      - healthcheck-volume:/healthcheck
+    depends_on: [master]
+    environment: *AUTH
+  user-service:
+    image: kurov1993/otus-x:0.1
+    container_name: user-service
+    ports:
+      - 8080:8080
+    depends_on:
+      - postgresql-follower
+    environment:
+      SPRING_DATASOURCE_WRITE_URL: jdbc:postgresql://leader:5432/otus_x
+      SPRING_DATASOURCE_READ_URL: jdbc:postgresql://postgresql-follower:5432/otus_x
+  message-service:
+    image: kurov1993/x-messenger:0.2
+    container_name: x-messenger
+    ports:
+      - 8081:8081
+    depends_on:
+      - user-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://sharding_master:5432/x_messenger
+      MESSENGER_AUTH_BASIC_URL: http://user-service:8080
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8081/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  liquibase:
+    image: liquibase/liquibase:4.27
+    depends_on:
+      message-service:
+        condition: service_healthy
+    volumes:
+      - ./changelog/:/liquibase/changelog/
+    command: --changeLogFile=changelog/changelog.xml --url=jdbc:postgresql://sharding_master:5432/x_messenger
+      --username=otus_x --password=otus_x update
+volumes:
+  otus_x_user_db:
+    driver: local
+  healthcheck-volume:

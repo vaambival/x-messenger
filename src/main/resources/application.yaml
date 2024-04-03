@@ -16,3 +16,7 @@ messenger:
   auth:
     basic-url: http://localhost:8080
     path: /user
+management:
+  endpoint:
+    health:
+      enabled: true
