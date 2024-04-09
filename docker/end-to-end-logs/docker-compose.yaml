@@ -1,4 +1,9 @@
 services:
+  zipkin:
+    image: openzipkin/zipkin:latest
+    ports:
+      - "9411:9411"
+    command: --logging.level.zipkin2=TRACE
   postgresql-leader:
     image: docker.io/bitnami/postgresql:16
     container_name: leader
@@ -45,6 +50,7 @@ services:
     environment:
       SPRING_DATASOURCE_WRITE_URL: jdbc:postgresql://leader:5432/otus_x
       SPRING_DATASOURCE_READ_URL: jdbc:postgresql://postgresql-follower:5432/otus_x
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
   message-service:
     image: kurov1993/x-messenger:0.3
     container_name: x-messenger
@@ -55,6 +61,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://messenger-db:5432/x_messenger
       MESSENGER_AUTH_BASIC_URL: http://user-service:8080
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
 volumes:
   postgresql_messenger:
     driver: local
