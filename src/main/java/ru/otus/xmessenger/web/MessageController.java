@@ -1,6 +1,7 @@
 package ru.otus.xmessenger.web;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +21,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/dialog")
 @RequiredArgsConstructor
+@Slf4j
 public class MessageController {
 
     private final MessageDao messageDao;
@@ -27,6 +29,7 @@ public class MessageController {
 
     @GetMapping("/{user_id}/list")
     public List<Message> list(@PathVariable("user_id") UUID addressee) {
+        log.info("GET LIST By UserId: {}", addressee);
         return messageDao.findDialogue(userSecurityService.getUuid(), addressee);
     }
 
@@ -34,11 +37,13 @@ public class MessageController {
     public List<Message> list(@PathVariable("user_id") UUID addressee,
                               @RequestParam("created_date") LocalDateTime createdDate,
                               @RequestParam("limit") int limit) {
+        log.info("GET LIST CONTINUE By UserId and Date: {} {}", addressee, createdDate);
         return messageDao.findDialogueContinue(userSecurityService.getUuid(), addressee, createdDate, limit);
     }
 
     @PostMapping("/{user_id}/send")
     public Message send(@PathVariable("user_id") UUID addressee, @RequestBody DialogMessage message) {
+        log.info("Send message to UserId: {}", addressee);
         return messageDao.insertMessage(userSecurityService.getUuid(), addressee, message.getText());
     }
 }
