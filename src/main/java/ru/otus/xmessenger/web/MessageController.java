@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.otus.xmessenger.dao.Message;
 import ru.otus.xmessenger.dao.MessageDao;
+import ru.otus.xmessenger.dao.tarantool.TarantoolDao;
 import ru.otus.xmessenger.service.UserSecurityService;
 import ru.otus.xmessenger.web.dto.DialogMessage;
 
@@ -24,21 +25,13 @@ import java.util.UUID;
 @Slf4j
 public class MessageController {
 
-    private final MessageDao messageDao;
+    private final TarantoolDao messageDao;
     private final UserSecurityService userSecurityService;
 
     @GetMapping("/{user_id}/list")
     public List<Message> list(@PathVariable("user_id") UUID addressee) {
         log.info("GET LIST By UserId: {}", addressee);
         return messageDao.findDialogue(userSecurityService.getUuid(), addressee);
-    }
-
-    @GetMapping("/{user_id}/list/continue")
-    public List<Message> list(@PathVariable("user_id") UUID addressee,
-                              @RequestParam("created_date") LocalDateTime createdDate,
-                              @RequestParam("limit") int limit) {
-        log.info("GET LIST CONTINUE By UserId and Date: {} {}", addressee, createdDate);
-        return messageDao.findDialogueContinue(userSecurityService.getUuid(), addressee, createdDate, limit);
     }
 
     @PostMapping("/{user_id}/send")

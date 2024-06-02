@@ -1,4 +1,11 @@
 services:
+  tarantool:
+    build: ./schema
+    container_name: in_memory
+    ports:
+      - "3301:3301"
+    volumes:
+      - 'tarantool_vol:/var/lib/tarantool'
   postgresql-leader:
     image: docker.io/bitnami/postgresql:16
     container_name: user_leader
@@ -24,17 +31,6 @@ services:
       - POSTGRESQL_PASSWORD=my_password
       - POSTGRESQL_MASTER_PORT_NUMBER=5432
       - ALLOW_EMPTY_PASSWORD=yes
-  database:
-    image: postgres:16.2
-    container_name: messenger-db
-    volumes:
-      - 'postgresql_messenger:/var/lib/postgresql/data'
-    ports:
-      - 5430:5432
-    environment:
-      - POSTGRES_USER=otus_x
-      - POSTGRES_PASSWORD=otus_x
-      - POSTGRES_DB=x_messenger
   user-service:
     image: kurov1993/otus-x:0.1
     container_name: user-service
@@ -46,7 +42,7 @@ services:
       SPRING_DATASOURCE_WRITE_URL: jdbc:postgresql://user_leader:5432/otus_x
       SPRING_DATASOURCE_READ_URL: jdbc:postgresql://postgresql-follower:5432/otus_x
 volumes:
-  postgresql_messenger:
+  tarantool_vol:
     driver: local
   otus_x_user_db:
     driver: local
