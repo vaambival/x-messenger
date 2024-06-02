@@ -31,6 +31,7 @@ dependencies {
 	implementation("io.micrometer:micrometer-observation")
 	implementation("io.micrometer:micrometer-tracing-bridge-brave")
 	implementation("io.zipkin.reporter2:zipkin-reporter-brave")
+	implementation("io.tarantool:cartridge-driver:0.13.0")
 	compileOnly("org.projectlombok:lombok")
 	runtimeOnly("org.postgresql:postgresql")
 	annotationProcessor("org.projectlombok:lombok")

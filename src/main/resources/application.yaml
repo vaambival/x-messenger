@@ -16,6 +16,11 @@ messenger:
   auth:
     basic-url: http://localhost:8080
     path: /user
+tarantool:
+  host: "localhost"
+  port: 3301
+  username: "otus_x"
+  password: "otus_x"
 management:
   endpoint:
     health:
